@@ -145,6 +145,8 @@ server:
     key-alias: tomcat
 application:
   harvesterUrl: http://localhost:8082
+  altinnServiceUrl: http://localhost:8077
+  apiCatUrl: http://localhost:8087
 
 ---
 spring:
@@ -165,6 +167,9 @@ application:
   altinnServiceEdition: 42
   apiKey: 1234-abcde-56789-fghij
   harvesterUrl: http://localhost:8082
+logging:
+  level.no.dcat: DEBUG
+
 
 ---
 spring:
