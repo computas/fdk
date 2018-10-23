@@ -1,14 +1,15 @@
-properties([pipelineTriggers([githubPush()])])
-
 node {
-    stage ('Checkout'){
-        echo "check out"
-    }
-    stage ('Build'){
-      echo "build out"
-        // steps
-    }
-    stage ('Test'){
-      echo "test"
-    }
+   stage("build") {
+       checkout scm
+  sh '''
+  echo Variables from shell:
+  echo ref $ref
+  echo before $before
+  echo pusher $pusher
+  echo url $url
+  echo
+  echo $body
+  echo
+  '''
+}
 }
