@@ -1,6 +1,5 @@
 node {
    stage("build") {
-       checkout scm
   sh '''
   echo Variables from shell:
   echo ref $ref
@@ -11,5 +10,9 @@ node {
   echo $body
   echo
   '''
+  git([url: $url, branch: $ref])
 }
+  stage("checkout take 2") {
+    git([url: $url, branch: $after])
+  }
 }
