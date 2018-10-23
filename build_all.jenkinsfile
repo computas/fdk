@@ -1,0 +1,102 @@
+def does_image_exist(String img, String tag) {
+    // need to have variable, returning in withregistry/container.. just returns from that function.
+    def imgExist = true
+    container('java-docker') {
+        docker.withRegistry('https://eu.gcr.io', 'gcr:fdk-infra') {
+            def customImage = docker.image("${img}:${tag}")
+            try {
+                customImage.pull()
+            } catch (error) {
+                echo "You can ignore the above error in the logs."
+                imgExist = false
+            }
+
+        }
+    }
+    return imgExist
+}
+
+def calculate_checksum(String app) {
+    checksum = ""
+    container('java-docker') {
+        git branch: 'feature/cx/ci-cd', url: 'https://github.com/computas/fdk.git'
+        checksum = sh (
+            script: "git log -n 1 --format=\"%h %aN %s %ad\" -- applications/${app}",
+            returnStdout: true
+        ).split(" ")[0]
+    }
+    return checksum
+}
+
+def get_values_images_text(checksums) {
+    lines = []
+    checksums.each{ key, value ->
+        lines.add(key + ":" + value)
+    }
+    return lines.join("\n")
+}
+
+node ('jenkins-maven'){
+
+    def bygg_mikrotjenester = [:]
+    def checksums = [:]
+    def values_images_text = ""
+    stage('Split') {
+
+     def list = ["fuseki", "harvester", "harvester-api", "nginx-search",
+                 "nginx-registration","reference-data", "registration-api",
+                 "registration-auth", "api-cat", "elasticsearch-copy",
+                 "search-api"]
+
+     list.each {
+         checksums["${it}"] = calculate_checksum("${it}")
+         bygg_mikrotjenester["Build ${it}"] = { buildProject("${it}", checksums["${it}"]) }
+     }
+     values_images_text = get_values_images_text(checksums)
+  }
+
+  parallel bygg_mikrotjenester
+
+  stage('post') {
+      writeFile file: "values_images.yaml", text: values_images_text
+      archiveArtifacts artifacts: 'values_images.yaml', excludes: "no/**"
+  }
+}
+
+def buildProject(String app, String checksum) {
+    node('jenkins-maven') {
+        stage('checkout') {
+            container('java-docker') {
+                git branch: 'feature/cx/ci-cd', url: 'https://github.com/computas/fdk.git'
+            }
+        }
+        if (does_image_exist("fdk-infra/${app}", checksum)) {
+            stage('Maven simple build') {
+                container('java-docker') {
+                    withMaven(maven: 'M3') {
+                            sh "mvn clean compile -B -T 2C --projects applications/${app} --also-make"
+                        }
+                } // container
+            }
+        } else {
+            stage('Maven build') {
+                container('java-docker') {
+                    withMaven(maven: 'M3') {
+                            sh "mvn clean install -B -T 2C --projects applications/${app} --also-make"
+                        }
+                } // container
+            }  // stage
+            stage('Push container registry') {
+                container('java-docker') {
+                    docker.withRegistry('https://eu.gcr.io', 'gcr:fdk-infra') {
+                        sh "docker tag dcatno/search-api:latest fdk-infra/${app}:${checksum}"
+                        def customImage = docker.image("fdk-infra/${app}:${checksum}")
+                        /* Push the container to the custom Registry */
+                        customImage.push()
+                    }
+
+                }
+            }
+        }
+    }
+}
