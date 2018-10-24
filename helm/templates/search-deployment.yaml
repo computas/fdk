@@ -27,7 +27,6 @@ spec:
           - containerPort: 3000
           resources: 
             requests:
-              memory: "100Mi"
               memory: {{ required "Missing value" .Values.FDK_SEARCH_MEMORY | quote }}
       restartPolicy: Always
 status: {}

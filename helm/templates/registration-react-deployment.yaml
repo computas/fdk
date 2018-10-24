@@ -34,6 +34,6 @@ spec:
         - containerPort: 4300
         resources: 
           requests:
-            memory: {{  required "Missing value" .Values.FDK_REGISTRATION_REACT_MEMORY }}
+            memory: {{  required "Missing value" .Values.FDK_REGISTRATION_REACT_MEMORY | quote }}
       restartPolicy: Always
 status: {}
