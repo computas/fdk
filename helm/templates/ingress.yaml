@@ -6,6 +6,7 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     kubernetes.io/ingress.global-static-ip-name: {{ required "Missing value" .Values.FDK_INGRESS_IP_NAME }}
+    ingress.gcp.kubernetes.io/pre-shared-cert: {{ required "Missing value" .Values.FDK_CERT_NAME | quote }}
 spec:
   rules:
   - host: {{ required "Missing value" .Values.FDK_INGRESS_HOSTNAME_REG }}
@@ -22,3 +23,5 @@ spec:
         backend:
           serviceName: nginx-search
           servicePort: 8080
+  tls:
+    - secretName: brregtest
