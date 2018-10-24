@@ -1,3 +1,22 @@
+// init global variables
+envVars = env.getEnvironment()
+
+if (!envVars.containsKey("ref")) {
+    echo "Pipeline is manually triggered, asking for needed variables!"
+
+    // manually triggered.
+    timeout(time: 60, unit: 'SECONDS') {
+        def userInput = input(
+            id: 'userInput', message: 'push hash:', parameters: [
+            [$class: 'TextParameterDefinition', description: 'paste here', name: 'after']
+            ])
+        echo ("Env: "+userInput)
+        after = userInput
+    }
+    // TODO: change to real fdk.
+    url = "https://github.com/Informasjonsforvaltning/fdk"
+}
+
 def does_image_exist(String img, String tag) {
     // need to have variable, returning in withregistry/container.. just returns from that function.
     def imgExist = true
@@ -16,16 +35,23 @@ def does_image_exist(String img, String tag) {
     return imgExist
 }
 
-def calculate_checksum(String app) {
-    checksum = ""
-    container('java-docker') {
-        git branch: 'feature/cx/ci-cd', url: 'https://github.com/computas/fdk.git'
+def do_checksums(services) {
+  def services_checksums = [:]
+    checkout ( [$class: 'GitSCM',
+          branches: [[name: after ]],
+          userRemoteConfigs: [[
+              credentialsId: 'systemjenkinsfdk',
+              url: url]]])
+    for (int i = 0; i < services.size(); i++) {
+        String app = services[i].service
         checksum = sh (
             script: "git log -n 1 --format=\"%h %aN %s %ad\" -- applications/${app}",
             returnStdout: true
         ).split(" ")[0]
+        services_checksums[app] = checksum
     }
-    return checksum
+
+  return services_checksums
 }
 
 def get_values_images_text(checksums) {
@@ -43,14 +69,25 @@ node ('jenkins-maven'){
     def values_images_text = ""
     stage('Split') {
 
-     def list = ["fuseki", "harvester", "harvester-api", "nginx-search",
-                 "nginx-registration","reference-data", "registration-api",
-                 "registration-auth", "api-cat", "elasticsearch-copy",
-                 "search-api"]
+     def list = [[service:"registration-react", compile: "cd applications/registration-react && ./travisBuild.sh"],
+                 [service:"search", compile: "cd applications/search && ./travisBuild.sh"],
+                 [service:"fuseki", compile: "maven"],
+                 [service:"harvester", compile: "maven"],
+                 [service:"harvester-api", compile: "maven"],
+                 [service:"nginx-search",compile: "maven"],
+                 [service:"nginx-registration",compile: "maven"],
+                 [service:"reference-data", compile: "maven"],
+                 [service:"registration-api",compile: "maven"],
+                 [service:"registration-auth", compile: "maven"],
+                 [service:"api-cat", compile: "maven"],
+                 [service:"elasticsearch-copy",compile: "maven"],
+                 [service:"search-api", compile: "maven"]]
+    checksums = do_checksums(list)
 
      list.each {
-         checksums["${it}"] = calculate_checksum("${it}")
-         bygg_mikrotjenester["Build ${it}"] = { buildProject("${it}", checksums["${it}"]) }
+         def service = it.service
+         def compile = it.compile
+         bygg_mikrotjenester["Build ${service}"] = { buildProject("${service}", checksums["${service}"], compile) }
      }
      values_images_text = get_values_images_text(checksums)
   }
@@ -59,44 +96,50 @@ node ('jenkins-maven'){
 
   stage('post') {
       writeFile file: "values_images.yaml", text: values_images_text
-      archiveArtifacts artifacts: 'values_images.yaml', excludes: "no/**"
+      //archiveArtifacts artifacts: 'values_images.yaml', excludes: "no/**"
   }
 }
 
-def buildProject(String app, String checksum) {
-    node('jenkins-maven') {
-        stage('checkout') {
-            container('java-docker') {
-                git branch: 'feature/cx/ci-cd', url: 'https://github.com/computas/fdk.git'
-            }
-        }
-        if (does_image_exist("fdk-infra/${app}", checksum)) {
-            stage('Maven simple build') {
-                container('java-docker') {
-                    withMaven(maven: 'M3') {
-                            sh "mvn clean compile -B -T 2C --projects applications/${app} --also-make"
-                        }
-                } // container
-            }
-        } else {
-            stage('Maven build') {
-                container('java-docker') {
-                    withMaven(maven: 'M3') {
-                            sh "mvn clean install -B -T 2C --projects applications/${app} --also-make"
-                        }
-                } // container
-            }  // stage
-            stage('Push container registry') {
-                container('java-docker') {
-                    docker.withRegistry('https://eu.gcr.io', 'gcr:fdk-infra') {
-                        sh "docker tag dcatno/search-api:latest fdk-infra/${app}:${checksum}"
-                        def customImage = docker.image("fdk-infra/${app}:${checksum}")
-                        /* Push the container to the custom Registry */
-                        customImage.push()
-                    }
-
-                }
-            }
+def buildProject(String app, String checksum, String compile) {
+  node('jenkins-maven') {
+    if (does_image_exist("fdk-infra/${app}", checksum)) {
+      echo "${app} with checksum ${checksum} has no changes."
+      return
+    }
+    stage('checkout') {
+        container('java-docker') {
+          checkout ( [$class: 'GitSCM',
+                branches: [[name: after ]],
+                userRemoteConfigs: [[
+                    credentialsId: 'systemjenkinsfdk',
+                    url: url]]])
         }
     }
+    stage('build') {
+      if (compile == 'maven'){
+        container('java-docker') {
+            withMaven(maven: 'M3') {
+              sh "mvn clean install -B -T 2C --projects applications/${app} --also-make"
+            }
+        } // container
+      } else {
+        container('java-docker') {
+          nodejs(nodeJSInstallationName: 'fdk-node') {
+            sh 'npm config set unsafe-perm true'
+            sh "(${compile})"
+          }
+        }
+      }
+    } // stage: build
+    stage('Push container registry') {
+      container('java-docker') {
+        docker.withRegistry('https://eu.gcr.io', 'gcr:fdk-infra') {
+          sh "docker tag dcatno/${app}:latest fdk-infra/${app}:${checksum}"
+          def customImage = docker.image("fdk-infra/${app}:${checksum}")
+          /* Push the container to the custom Registry */
+          customImage.push()
+        }
+      }
+    } // stage: push..
+  } // node
 }
