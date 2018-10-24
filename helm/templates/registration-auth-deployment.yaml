@@ -19,7 +19,7 @@ spec:
       containers:
       - env:
         - name: SPRING_PROFILES_ACTIVE
-          value: {{ required "Missing value" Values.FDK_REGISTRATION_AUTH_SPRING_PROFILES_ACTIVE }}
+          value: {{ required "Missing value" .Values.FDK_REGISTRATION_AUTH_SPRING_PROFILES_ACTIVE }}
         image: {{ required "Missing value" .Values.REGISTRATION_AUTH_IMAGE }}
         imagePullPolicy: Always
         name: registration-auth
