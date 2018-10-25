@@ -25,6 +25,17 @@ spec:
             - vm.max_map_count=262144
           securityContext:
             privileged: true
+        - name: fix-rights
+          image: {{ required "Missing value" .Values.ES5_BUSY_IMAGE }}
+          command:
+            - /bin/chmod
+            - "777"
+            - /usr/share/elasticsearch/data
+          volumeMounts:
+          - name: elasticsearch5-claim0
+            mountPath: "/usr/share/elasticsearch/data"
+          securityContext:
+            privileged: true
       containers:
       - env:
         - name: cluster.name
