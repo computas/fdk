@@ -6,8 +6,8 @@ metadata:
     fdk.service: reference-data-claim0
   name: reference-data-claim0
   namespace: {{ required "Missing value" .Values.NAMESPACE }}
-spec:
-  storageClassName: ""
+spec: {{ if (.Values.FDK_TEMPDISK) and .Values.FDK_TEMPDISK "true" }}{{ else }}
+  storageClassName: ""{{ end }}
   volumeName: {{ required "Missing value" .Values.FDK_REFERENCE_DATA_VOLUMENAME }}
   accessModes:
   - ReadWriteOnce
@@ -15,6 +15,7 @@ spec:
     requests:
       storage: {{ required "Missing value" .Values.FDK_REFERENCE_DATA_STORAGESIZE }}
 status: {}
+{{ if (.Values.FDK_TEMPDISK) and .Values.FDK_TEMPDISK "true" }} {{ else }}
 ---
 kind: PersistentVolume
 apiVersion: v1
@@ -30,3 +31,4 @@ spec:
   gcePersistentDisk:
     pdName: {{ required "Missing value" .Values.FDK_REFERENCE_DATA_VOLUMENAME }}
     fsType: ext4
+{{ end }}
