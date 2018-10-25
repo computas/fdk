@@ -7,8 +7,8 @@ metadata:
   name: reference-data-claim0
   namespace: {{ required "Missing value" .Values.NAMESPACE }}
 spec: {{ if (.Values.FDK_TEMPDISK) and .Values.FDK_TEMPDISK "true" }}{{ else }}
-  storageClassName: ""{{ end }}
-  volumeName: {{ required "Missing value" .Values.FDK_REFERENCE_DATA_VOLUMENAME }}
+  storageClassName: ""
+  volumeName: {{ required "Missing value" .Values.FDK_REFERENCE_DATA_VOLUMENAME }}{{ end }}
   accessModes:
   - ReadWriteOnce
   resources:
