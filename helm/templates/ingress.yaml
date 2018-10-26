@@ -1,22 +1,22 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{ required "Missing value" .Values.FDK_INGRESSNAME }}
-  namespace: {{ required "Missing value" .Values.NAMESPACE }}
+  name: {{ required "Missing value FDK_INGRESSNAME" .Values.FDK_INGRESSNAME }}
+  namespace: {{ required "Missing value NAMESPACE" .Values.NAMESPACE }}
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-    kubernetes.io/ingress.global-static-ip-name: {{ required "Missing value" .Values.FDK_INGRESS_IP_NAME }}
-    ingress.gcp.kubernetes.io/pre-shared-cert: {{ required "Missing value" .Values.FDK_CERT_NAME | quote }}
+    kubernetes.io/ingress.global-static-ip-name: {{ required "Missing value FDK_INGRESS_IP_NAME" .Values.FDK_INGRESS_IP_NAME }}
+    ingress.gcp.kubernetes.io/pre-shared-cert: {{ required "Missing value FDK_CERT_NAME" .Values.FDK_CERT_NAME | quote }}
 spec:
   rules:
-  - host: {{ required "Missing value" .Values.FDK_INGRESS_HOSTNAME_REG }}
+  - host: {{ required "Missing value FDK_INGRESS_HOSTNAME_REG" .Values.FDK_INGRESS_HOSTNAME_REG }}
     http:
       paths:
       - path: /*
         backend:
           serviceName: nginx-registration
           servicePort: 8080
-  - host: {{ required "Missing value" .Values.FDK_INGRESS_HOSTNAME_WWW }}
+  - host: {{ required "Missing value FDK_INGRESS_HOSTNAME_WWW" .Values.FDK_INGRESS_HOSTNAME_WWW }}
     http:
       paths:
       - path: /*
