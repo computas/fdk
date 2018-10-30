@@ -25,5 +25,5 @@ spec:
           serviceName: nginx-search
           servicePort: 8080
   tls:
-    - secretName: {{ required "Missing value FDK_INGRESS_SSL_SECRET" .Values.FDK_INGRESS_SSL_SECRET }}
+    - secretName: {{ required "Missing value FDK_CERT_NAME" .Values.FDK_CERT_NAME }}
 {{ else }} {{ end }}
