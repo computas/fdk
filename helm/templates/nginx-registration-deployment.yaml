@@ -5,7 +5,7 @@ metadata:
   labels:
     fdk.service: nginx-registration
   name: nginx-registration
-  namespace: {{ required "Missing value" .Values.NAMESPACE }}
+  namespace: {{ required "Missing value NAMESPACE" .Values.NAMESPACE }}
 spec:
   replicas: 1
   strategy: {}
@@ -16,14 +16,14 @@ spec:
         fdk.service: nginx-registration
     spec:
       containers:
-      - image: {{ required "Missing value" .Values.NGINX_REGISTRATION_IMAGE }}
+      - image: {{ required "Missing value NGINX_REGISTRATION_IMAGE" .Values.NGINX_REGISTRATION_IMAGE }}
         imagePullPolicy: Always
         name: nginx-registration
         ports:
         - containerPort: 8080
         resources:
           requests:
-            memory: {{ required "Missing value" .Values.FDK_NGINX_REGISTRATION_MEMORY | quote }}
+            memory: {{ required "Missing value FDK_NGINX_REGISTRATION_MEMORY" .Values.FDK_NGINX_REGISTRATION_MEMORY | quote }}
         livenessProbe:
           httpGet:
             path: /login

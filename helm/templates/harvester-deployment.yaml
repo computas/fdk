@@ -5,7 +5,7 @@ metadata:
   labels:
     fdk.service: harvester
   name: harvester
-  namespace: {{ required "Missing value" .Values.NAMESPACE }}
+  namespace: {{ required "Missing value NAMESPACE" .Values.NAMESPACE }}
 spec:
   replicas: 1
   strategy:
@@ -19,19 +19,19 @@ spec:
       containers:
       - env:
         - name: SPRING_PROFILES_ACTIVE
-          value: {{ required "Missing value" .Values.SPRING_PROFILES_ACTIVE }}
+          value: {{ required "Missing value SPRING_PROFILES_ACTIVE" .Values.SPRING_PROFILES_ACTIVE }}
         - name: harvester_adminPassword
-          value: {{ required "Missing value" .Values.FDK_HARVESTER_ADMINPASSWORD }}
+          value: {{ required "Missing value FDK_HARVESTER_ADMINPASSWORD" .Values.FDK_HARVESTER_ADMINPASSWORD }}
         - name: harvester_adminUsername
-          value: {{ required "Missing value" .Values.FDK_HARVESTER_ADMINUSERNAME }}
-        image: {{ required "Missing value" .Values.HARVESTER_IMAGE }}
+          value: {{ required "Missing value FDK_HARVESTER_ADMINUSERNAME" .Values.FDK_HARVESTER_ADMINUSERNAME }}
+        image: {{ required "Missing value HARVESTER_IMAGE" .Values.HARVESTER_IMAGE }}
         imagePullPolicy: Always
         name: harvester
         ports:
         - containerPort: 8080
         resources:
           requests:
-            memory: {{ required "Missing value" .Values.FDK_HARVESTER_MEMORY | quote }}
+            memory: {{ required "Missing value FDK_HARVESTER_MEMORY" .Values.FDK_HARVESTER_MEMORY | quote }}
         livenessProbe:
           httpGet:
             path: /login

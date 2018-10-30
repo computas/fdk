@@ -1,3 +1,4 @@
+{{ if (.Values.FDK_INGRESSROUTER) and .Values.FDK_INGRESSROUTER "true" }}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -24,4 +25,5 @@ spec:
           serviceName: nginx-search
           servicePort: 8080
   tls:
-    - secretName: brregtest
+    - secretName: {{ required "Missing value FDK_INGRESS_SSL_SECRET" .Values.FDK_INGRESS_SSL_SECRET }}
+{{ else }} {{ end }}

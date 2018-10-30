@@ -5,7 +5,7 @@ metadata:
   labels:
     fdk.service: elasticsearch5
   name: elasticsearch5
-  namespace: {{ required "Missing value" .Values.NAMESPACE }}
+  namespace: {{ required "Missing value NAMESPACE" .Values.NAMESPACE }}
 spec:
   replicas: 1
   strategy:
@@ -18,7 +18,7 @@ spec:
     spec:
       initContainers:
         - name: increase-the-vm-max-map-count
-          image: {{ required "Missing value" .Values.ES5_BUSY_IMAGE }}
+          image: {{ required "Missing value ES5_BUSY_IMAGE" .Values.ES5_BUSY_IMAGE }}
           command:
             - sysctl
             - -w
@@ -26,7 +26,7 @@ spec:
           securityContext:
             privileged: true
         - name: fix-rights
-          image: {{ required "Missing value" .Values.ES5_BUSY_IMAGE }}
+          image: {{ required "Missing value ES5_BUSY_IMAGE" .Values.ES5_BUSY_IMAGE }}
           command:
             - /bin/chmod
             - "777"
@@ -39,10 +39,10 @@ spec:
       containers:
       - env:
         - name: cluster.name
-          value: {{ required "Missing value" .Values.FDK_ES_CLUSTERNAME }}
+          value: {{ required "Missing value FDK_ES_CLUSTERNAME" .Values.FDK_ES_CLUSTERNAME }}
         - name: xpack.security.enabled
-          value: "{{ required "Missing value"  .Values.FDK_ES_SECURITY }}"
-        image: {{ required "Missing value" .Values.ES5_IMAGE }}
+          value: {{ required "Missing value FDK_ES_SECURITY"  .Values.FDK_ES_SECURITY | quote}}
+        image: {{ required "Missing value ES5_IMAGE" .Values.ES5_IMAGE }}
         imagePullPolicy: Always
         name: elasticsearch5
         ports:
@@ -50,7 +50,7 @@ spec:
         - containerPort: 9300
         resources: 
           requests:
-            memory: {{ required "Missing value" .Values.FDK_ES_MEMORY | quote }}
+            memory: {{ required "Missing value FDK_ES_MEMORY" .Values.FDK_ES_MEMORY | quote }}
         volumeMounts:
         - mountPath: /usr/share/elasticsearch/data
           name: elasticsearch5-claim0

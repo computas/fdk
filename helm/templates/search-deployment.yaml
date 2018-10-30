@@ -5,7 +5,7 @@ metadata:
   labels:
     fdk.service: search
   name: search
-  namespace: {{ required "Missing value" .Values.NAMESPACE }}
+  namespace: {{ required "Missing value NAMESPACE" .Values.NAMESPACE }}
 spec:
   replicas: 1
   strategy:
@@ -19,14 +19,14 @@ spec:
       containers:
         - env:
           - name: NODE_ENV
-            value: {{ required "Missing value" .Values.SEARCH_NODE_ENV }}
-          image: {{ required "Missing value" .Values.SEARCH_IMAGE }}
+            value: {{ required "Missing value SEARCH_NODE_ENV" .Values.SEARCH_NODE_ENV }}
+          image: {{ required "Missing value SEARCH_IMAGE" .Values.SEARCH_IMAGE }}
           imagePullPolicy: Always
           name: search
           ports:
           - containerPort: 3000
           resources: 
             requests:
-              memory: {{ required "Missing value" .Values.FDK_SEARCH_MEMORY | quote }}
+              memory: {{ required "Missing value FDK_SEARCH_MEMORY" .Values.FDK_SEARCH_MEMORY | quote }}
       restartPolicy: Always
 status: {}

@@ -5,7 +5,7 @@ metadata:
   labels:
     fdk.service: harvester-api-claim0
   name: harvester-api-claim0
-  namespace: {{ required "Missing value" .Values.NAMESPACE }}
+  namespace: {{ required "Missing value NAMESPACE" .Values.NAMESPACE }}
 spec:
   accessModes:
   - ReadWriteOnce

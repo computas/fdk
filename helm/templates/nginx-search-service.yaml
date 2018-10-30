@@ -5,7 +5,7 @@ metadata:
   labels:
     fdk.service: nginx-search
   name: nginx-search
-  namespace: {{ required "Missing value" .Values.NAMESPACE }}
+  namespace: {{ required "Missing value NAMESPACE" .Values.NAMESPACE }}
 spec:
   type: NodePort
   ports:

@@ -6,7 +6,7 @@ metadata:
   labels:
     fdk.service: registration-auth
   name: registration-auth
-  namespace: {{ required "Missing value" .Values.NAMESPACE }}
+  namespace: {{ required "Missing value NAMESPACE" .Values.NAMESPACE }}
 spec:
   type: NodePort
   ports:

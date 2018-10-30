@@ -5,7 +5,7 @@ metadata:
   labels:
     fdk.service: reference-data
   name: reference-data
-  namespace: {{ required "Missing value" .Values.NAMESPACE }}
+  namespace: {{ required "Missing value NAMESPACE" .Values.NAMESPACE }}
 spec:
   replicas: 1
   strategy: {}
@@ -18,19 +18,19 @@ spec:
       containers:
       - env:
         - name: SPRING_PROFILES_ACTIVE
-          value: {{ required "Missing value" .Values.SPRING_PROFILES_ACTIVE }}
+          value: {{ required "Missing value SPRING_PROFILES_ACTIVE" .Values.SPRING_PROFILES_ACTIVE }}
         - name: themesHttpUsername
-          value: {{ required "Missing value" .Values.FDK_REFERENCE_DATA_THEMESHTTPUSERNAME }}
+          value: {{ required "Missing value FDK_REFERENCE_DATA_THEMESHTTPUSERNAME" .Values.FDK_REFERENCE_DATA_THEMESHTTPUSERNAME }}
         - name: themesHttpPassword
-          value: {{ required "Missing value" .Values.FDK_REFERENCE_DATA_THEMESHTTPPASSWORD }}
-        image: {{ required "Missing value" .Values.REFERENCE_DATA_IMAGE }}
+          value: {{ required "Missing value FDK_REFERENCE_DATA_THEMESHTTPPASSWORD" .Values.FDK_REFERENCE_DATA_THEMESHTTPPASSWORD }}
+        image: {{ required "Missing value REFERENCE_DATA_IMAGE" .Values.REFERENCE_DATA_IMAGE }}
         imagePullPolicy: Always
         name: reference-data
         ports:
         - containerPort: 8080
         resources: 
           requests:
-            memory: {{ required "Missing value" .Values.FDK_REFERENCE_DATA_MEMORY | quote }}
+            memory: {{ required "Missing value FDK_REFERENCE_DATA_MEMORY" .Values.FDK_REFERENCE_DATA_MEMORY | quote }}
         volumeMounts:
         - mountPath: /tdb
           name: reference-data-claim0

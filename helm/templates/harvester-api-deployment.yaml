@@ -5,7 +5,7 @@ metadata:
   labels:
     fdk.service: harvester-api
   name: harvester-api
-  namespace: {{ required "Missing value" .Values.NAMESPACE }}
+  namespace: {{ required "Missing value NAMESPACE" .Values.NAMESPACE }}
 spec:
   replicas: 1
   strategy:
@@ -19,7 +19,7 @@ spec:
       containers:
       - env:
         - name: SPRING_PROFILES_ACTIVE
-          value: {{ required "Missing value 1" .Values.SPRING_PROFILES_ACTIVE }}
+          value: {{ required "Missing value SPRING_PROFILES_ACTIVE" .Values.SPRING_PROFILES_ACTIVE }}
         - name: emailUsername
           value: {{ .Values.FDK_HARVESTER_API_EMAILUSERNAME }}
         - name: emailPassword
@@ -27,16 +27,16 @@ spec:
         - name: emailSenderAddress
           value: {{ .Values.FDK_HARVESTER_API_EMAILSENDERADDRESS }}
         - name: themesHttpUsername
-          value: {{ required "Missing value" .Values.FDK_HARVESTER_API_THEMESHTTPUSER }}
+          value: {{ required "Missing value FDK_HARVESTER_API_THEMESHTTPUSER" .Values.FDK_HARVESTER_API_THEMESHTTPUSER }}
         - name: themesHttpPassword
-          value: {{ required "Missing value" .Values.FDK_HARVESTER_API_THEMESHTTPPASSWORD }}
+          value: {{ required "Missing value FDK_HARVESTER_API_THEMESHTTPPASSWORD" .Values.FDK_HARVESTER_API_THEMESHTTPPASSWORD }}
         - name: FDK_ES_CLUSTERNODES
-          value: {{ required "Missing value" .Values.FDK_ES_CLUSTERNODES }}
+          value: {{ required "Missing value FDK_ES_CLUSTERNODES" .Values.FDK_ES_CLUSTERNODES }}
         - name: FDK_ES_CLUSTERNAME
-          value: {{ required "Missing value" .Values.FDK_ES_CLUSTERNAME }}
+          value: {{ required "Missing value FDK_ES_CLUSTERNAME" .Values.FDK_ES_CLUSTERNAME }}
         - name: application_openDataEnhet
-          value: {{ required "Missing value" .Values.FDK_HARVESTER_API_APPLICATION_OPENDATAENHET }}
-        image: {{ required "Missing value" .Values.HARVESTER_API_IMAGE }}
+          value: {{ required "Missing value FDK_HARVESTER_API_APPLICATION_OPENDATAENHET" .Values.FDK_HARVESTER_API_APPLICATION_OPENDATAENHET }}
+        image: {{ required "Missing value HARVESTER_API_IMAGE" .Values.HARVESTER_API_IMAGE }}
         imagePullPolicy: Always
         name: harvester-api
         ports:
@@ -44,6 +44,6 @@ spec:
         - containerPort: 8181
         resources: 
           requests:
-            memory: {{ required "Missing value" .Values.FDK_HARVESTER_API_MEMORY | quote }}
+            memory: {{ required "Missing value FDK_HARVESTER_API_MEMORY" .Values.FDK_HARVESTER_API_MEMORY | quote }}
       restartPolicy: Always
 status: {}

@@ -5,7 +5,7 @@ metadata:
   labels:
     fdk.service: search-api
   name: search-api
-  namespace: {{ required "Missing value" .Values.NAMESPACE }}
+  namespace: {{ required "Missing value NAMESPACE" .Values.NAMESPACE }}
 spec:
   replicas: 1
   strategy: {}
@@ -18,12 +18,12 @@ spec:
       containers:
       - env:
         - name: SPRING_PROFILES_ACTIVE
-          value: {{ required "Missing value" .Values.SPRING_PROFILES_ACTIVE }}
+          value: {{ required "Missing value SPRING_PROFILES_ACTIVE" .Values.SPRING_PROFILES_ACTIVE }}
         - name: FDK_ES_CLUSTERNAME
-          value: {{ required "Missing value" .Values.FDK_ES_CLUSTERNAME }}
+          value: {{ required "Missing value FDK_ES_CLUSTERNAME" .Values.FDK_ES_CLUSTERNAME }}
         - name: FDK_ES_CLUSTERNODES
-          value: {{ required "Missing value" .Values.FDK_ES_CLUSTERNODES }}
-        image: {{ required "Missing value" .Values.SEARCH_API_IMAGE }}
+          value: {{ required "Missing value FDK_ES_CLUSTERNODES" .Values.FDK_ES_CLUSTERNODES }}
+        image: {{ required "Missing value SEARCH_API_IMAGE" .Values.SEARCH_API_IMAGE }}
         imagePullPolicy: Always
         name: search-api
         ports:
@@ -31,6 +31,6 @@ spec:
         - containerPort: 8181
         resources:
           requests:
-            memory: {{ required "Missing value" .Values.FDK_SEARCH_API_MEMORY | quote }}
+            memory: {{ required "Missing value FDK_SEARCH_API_MEMORY" .Values.FDK_SEARCH_API_MEMORY | quote }}
       restartPolicy: Always
 status: {}
